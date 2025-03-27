@@ -68,9 +68,6 @@ const Register: React.FC = () => {
       localStorage.setItem('token', response.data.token);
       localStorage.setItem('isAdmin', JSON.stringify(response.data.client_admin));
       
-      console.log('Сохраненные данные:');
-      console.log('- user:', localStorage.getItem('user'));
-      console.log('- isAdmin:', localStorage.getItem('isAdmin'));
       
       navigate('/boards');
     } catch (error: any) {
@@ -92,14 +89,6 @@ const Register: React.FC = () => {
 
   return (
     <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
         <Paper sx={{ p: 4, width: '100%' }}>
           <Typography component="h1" variant="h5" align="center" gutterBottom>
             Регистрация
@@ -185,7 +174,6 @@ const Register: React.FC = () => {
             </Box>
           </form>
         </Paper>
-      </Box>
     </Container>
   );
 };

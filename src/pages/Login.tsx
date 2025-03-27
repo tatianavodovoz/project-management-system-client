@@ -57,10 +57,9 @@ const Login: React.FC = () => {
       console.log('Получен ответ от сервера:', response.data);
 
       console.log('Сохраняем данные в localStorage...');
-      localStorage.setItem('token', response.data.client_token);
-      localStorage.setItem('name', JSON.stringify(response.data.client_name));
-      localStorage.setItem('email', JSON.stringify(response.data.client_email));
-      localStorage.setItem('isAdmin', response.data.client_admin ? 'true' : 'false');
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      localStorage.setItem('isAdmin', response.data.user.client_admin ? 'true' : 'false');
       
       console.log('Данные успешно сохранены, переходим на доски...');
       
@@ -88,14 +87,6 @@ const Login: React.FC = () => {
   
   return (
     <Container component="main" maxWidth="xs">
-      <Box
-        sx={{
-          marginTop: 8,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-        }}
-      >
         <Paper sx={{ p: 4, width: '100%' }}>
           <Typography component="h1" variant="h5" align="center" gutterBottom>
             Вход в систему
@@ -148,7 +139,6 @@ const Login: React.FC = () => {
             </Box>
           </form>
         </Paper>
-      </Box>
     </Container>
   );
 };

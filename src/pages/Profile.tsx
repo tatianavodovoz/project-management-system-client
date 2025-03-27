@@ -17,34 +17,18 @@ import {
 } from '@mui/material';
 import { Client } from '../types';
 import { api } from '../services/api';
+import { useManage } from '../providers/manage-provider';
 
 const Profile: React.FC = () => {
     // Состояния компонента
-    const [profile, setProfile] = useState<Client | null>(null);
+    const [profile, setProfile] = useState<Client | null>(() => {
+        const storedUser = localStorage.getItem('user');
+        return storedUser ? (JSON.parse(storedUser) as Client) : null;
+    });
     const [isEditing, setIsEditing] = useState(false);
     const [formData, setFormData] = useState<Partial<Client>>({});
     const [message, setMessage] = useState<{ text: string; type: 'success' | 'error' } | null>(null);
-
-    /**
-     * Загрузка данных профиля при монтировании компонента
-     */
-    useEffect(() => {
-        fetchProfile();
-    }, []);
-
-    /**
-     * Получение данных профиля с сервера
-     */
-    const fetchProfile = async () => {
-        try {
-            const response = await api.get('/profile');
-            setProfile(response.data);
-            setFormData(response.data);
-        } catch (error) {
-            console.error('Error fetching profile:', error);
-            setMessage({ text: 'Ошибка при загрузке профиля', type: 'error' });
-        }
-    };
+    const {isAdmin} = useManage();
 
     /**
      * Обработчик изменения полей формы
@@ -65,7 +49,8 @@ const Profile: React.FC = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            await api.put('/profile', formData);
+            const id = profile?.client_id
+            await api.put(`/clients/${id}`, formData);
             setProfile(formData as Client);
             setIsEditing(false);
             setMessage({ text: 'Профиль успешно обновлен', type: 'success' });
@@ -83,6 +68,14 @@ const Profile: React.FC = () => {
             </Container>
         );
     }
+
+    const handleLogout = () => {
+        // Удаляем все данные аутентификации
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = '/login';
+    };
+
 
     return (
         <Container maxWidth="md" sx={{ mt: 4 }}>
@@ -133,7 +126,7 @@ const Profile: React.FC = () => {
                             <TextField
                                 fullWidth
                                 label="Роль"
-                                value={profile.client_role}
+                                value={isAdmin ? "Админ" : "Пользователь"}
                                 disabled
                             />
                         </Grid>
@@ -163,6 +156,12 @@ const Profile: React.FC = () => {
                     </Grid>
                 </form>
             </Paper>
+
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
+                <Button variant="outlined" color="inherit" onClick={handleLogout} sx={{ fontWeight: 'bold', fontSize: '1.1rem', textTransform: 'none' }}>
+                    Выйти
+                </Button>
+            </Box>
 
             {/* Уведомления */}
             <Snackbar

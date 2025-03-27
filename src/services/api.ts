@@ -18,7 +18,7 @@ api.interceptors.request.use(
             data: config.data
         });
 
-        const token = localStorage.getItem('client_token');
+        const token = localStorage.getItem('token');
         if (token) {
             console.log(token);
             config.data = {

@@ -29,7 +29,7 @@ const BoardDetail: React.FC = () => {
     const [error, setError] = useState<string>('');
     const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
-    const client_token = localStorage.getItem('client_token');
+    const client_token = localStorage.getItem('token');
 
 
 
@@ -62,7 +62,6 @@ const BoardDetail: React.FC = () => {
     // Создание новой задачи
     const handleCreateTask = async (taskData: Partial<Task>) => {
         try {
-            const client_token = localStorage.getItem('client_token');
             if (!client_token) throw new Error('Необходимо войти в систему');
         
             const newTaskData = {

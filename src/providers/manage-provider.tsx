@@ -3,74 +3,46 @@ import React, { useState, ReactNode, createContext, useContext, useEffect } from
 interface ManageContextType {
     isAdmin: boolean;
     setIsAdmin: (value: boolean) => void;
+    refreshAdminStatus: () => void;
 }
 
 const ManageContext = createContext<ManageContextType>({
     isAdmin: false,
-    setIsAdmin: () => {}
+    setIsAdmin: () => { },
+    refreshAdminStatus: () => { }
 });
 
-export const ManageProvider = ({children}: {children: ReactNode}) => {
-    const [isAdmin, setIsAdmin] = useState<boolean>(() => {
-        const userData = localStorage.getItem('user');
-        console.log('Initial userData:', userData);
-        
-        // Проверяем значение isAdmin из localStorage
-        const storedIsAdmin = localStorage.getItem('isAdmin') === 'true';
-        if (userData) {
-            const user = JSON.parse(userData);
-            console.log('Initial user admin status:', user.client_admin);
-            // Если storedIsAdmin true, используем его, иначе используем client_admin
-            return storedIsAdmin || user.client_admin === true; 
-        }
-        return false;
-    });
+export const ManageProvider = ({ children }: { children: ReactNode }) => {
+    // Функция для проверки, является ли пользователь администратором
+    const checkIsAdmin = () => {
+        return localStorage.getItem('isAdmin') === "true";
+    };
 
-    // Активно проверяем роль пользователя
+    // При инициализации проверяем статус админа
+    const [isAdmin, setIsAdmin] = useState<boolean>(checkIsAdmin);
+
+    // Функция для обновления статуса администратора (можно вызывать из компонентов)
+    const refreshAdminStatus = () => {
+        setIsAdmin(checkIsAdmin());
+    };
+
+    // На первом рендере и при изменениях localStorage обновляем статус
     useEffect(() => {
-        const checkUserRole = () => {
-            const userData = localStorage.getItem('user');
-            console.log('Checking user role, userData:', userData);
-            
-            if (userData) {
-                const user = JSON.parse(userData);
-                console.log('Current user role:', user.client_role);
-                console.log('Current isAdmin state:', isAdmin);
-                
-                const shouldBeAdmin = user.client_role === 'admin';
-                if (shouldBeAdmin !== isAdmin) {
-                    console.log('Updating isAdmin to:', shouldBeAdmin);
-                    setIsAdmin(shouldBeAdmin);
-                }
-            } else if (isAdmin) {
-                console.log('No user data found, setting isAdmin to false');
-                setIsAdmin(false);
-            }
-        };
-
-        // Проверяем роль каждый раз при монтировании и при изменении localStorage
-        checkUserRole();
+        refreshAdminStatus();
 
         const handleStorageChange = () => {
-            console.log('Storage changed, checking role');
-            checkUserRole();
+            refreshAdminStatus();
         };
 
         window.addEventListener('storage', handleStorageChange);
-        
-        // Добавляем интервальную проверку
-        const interval = setInterval(checkUserRole, 1000);
 
         return () => {
             window.removeEventListener('storage', handleStorageChange);
-            clearInterval(interval);
         };
-    }, [isAdmin]);
-
-    console.log('ManageProvider rendering with isAdmin:', isAdmin);
+    }, []);
 
     return (
-        <ManageContext.Provider value={{ isAdmin, setIsAdmin }}>
+        <ManageContext.Provider value={{ isAdmin, setIsAdmin, refreshAdminStatus }}>
             {children}
         </ManageContext.Provider>
     );
@@ -82,4 +54,4 @@ export const useManage = () => {
         throw new Error('useManage must be used within a ManageProvider');
     }
     return context;
-} 
+}
