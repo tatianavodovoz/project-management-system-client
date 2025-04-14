@@ -26,6 +26,7 @@ const BoardList: React.FC = () => {
     const fetchBoards = async () => {
         try {
             const response = await api.get('/boards');
+            console.log('response.data', response.data);
             setBoards(response.data);
         } catch (error) {
             console.error('Error fetching boards:', error);

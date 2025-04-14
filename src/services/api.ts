@@ -12,21 +12,23 @@ export const api = axios.create({
 // Добавляем токен к каждому запросу
 api.interceptors.request.use(
     (config) => {
+        const client_token = localStorage.getItem('token');
+        if (client_token) {
+            if (config.headers && typeof config.headers.set === 'function') {
+                config.headers.set('client_token', client_token);
+            } else if (config.headers) {
+                (config.headers as any)['client_token'] = client_token;
+            } else {
+                config.headers = { client_token: client_token } as any;
+            }
+        }
         console.log('Отправляем запрос:', {
             url: config.url,
             method: config.method,
-            data: config.data
+            headers: config.headers,
+            data: config.data,
+            params: config.params
         });
-
-        const token = localStorage.getItem('token');
-        if (token) {
-            console.log(token);
-            config.data = {
-                ...config.data,
-                token: token // Добавляем токен в тело запроса
-            };
-
-        }
         return config;
     },
     (error) => {
@@ -58,11 +60,11 @@ api.interceptors.response.use(
             return Promise.reject(new Error('Сервер недоступен. Проверьте подключение к интернету.'));
         }
 
-        if (error.response.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = '/login';
-        }
+        // if (error.response.status === 401) {
+        //     localStorage.removeItem('token');
+        //     localStorage.removeItem('user');
+        //     window.location.href = '/login';
+        // }
 
         return Promise.reject(error);
     }
