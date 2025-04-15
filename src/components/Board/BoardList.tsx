@@ -18,6 +18,8 @@ const BoardList: React.FC = () => {
     const [boards, setBoards] = useState<Board[]>([]);
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [error, setError] = useState<string>('');
+    const [editingBoard, setEditingBoard] = useState<Board | null>(null);
+
 
     useEffect(() => {
         fetchBoards();
@@ -60,6 +62,17 @@ const BoardList: React.FC = () => {
         }
     };
 
+    const handleEditBoard = async (boardData: Partial<Board>) => {
+        if (!editingBoard) return;
+        try {
+          await api.put(`/boards/${editingBoard.board_id}`, boardData);
+          fetchBoards();
+          setEditingBoard(null);
+        } catch (error) {
+          setError('Ошибка при редактировании доски');
+        }
+      };
+
     return (
         <Container maxWidth="lg" sx={{ mt: 4 }}>
             <Box sx={{ mb: 4, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -91,6 +104,9 @@ const BoardList: React.FC = () => {
                                 <Typography variant="h5">
                                     {board.board_name}
                                 </Typography>
+                                <Button 
+                                    onClick={e => { e.stopPropagation(); setEditingBoard(board); }}>Редактировать
+                                </Button>
                             </CardContent>
                         </Card>
                     </Grid>
@@ -102,6 +118,14 @@ const BoardList: React.FC = () => {
                 onClose={() => setIsFormOpen(false)}
                 onSubmit={handleCreateBoard}
             />
+            <BoardForm
+                open={!!editingBoard}
+                onClose={() => setEditingBoard(null)}
+                onSubmit={handleEditBoard}
+                board={editingBoard || undefined}
+            />
+
+            
         </Container>
     );
 };
