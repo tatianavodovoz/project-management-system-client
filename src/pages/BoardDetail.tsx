@@ -30,7 +30,7 @@ const BoardDetail: React.FC = () => {
     const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
     const client_token = localStorage.getItem('token');
-
+    const client_id = localStorage.getItem('client_id');
 
 
     // Получение задач доски
@@ -66,7 +66,7 @@ const BoardDetail: React.FC = () => {
         
             const newTaskData = {
                 ...taskData,
-                task_performer_id: client_token,
+                task_performer_id: Number(client_id), //был client_token, с ним не работало создание задачи
                 task_board_id: Number(boardId)
             };
 

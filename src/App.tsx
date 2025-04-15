@@ -53,6 +53,7 @@ export const App: React.FC = () => {
             <Header />
             <Routes>
               <Route path="/boards" element={<BoardList />} />
+              <Route path="/boards/:boardId" element={<BoardDetail />} />
               <Route path="*" element={<Navigate to="/boards" replace />} />
               <Route path="/profile" element={<Profile/>} />
             </Routes>
