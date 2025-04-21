@@ -3,7 +3,7 @@
  * Отображает задачи в формате канбан-доски с колонками To Do, In Progress и Done.
  * Позволяет создавать, редактировать, удалять задачи и менять их статус.
  */
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import {
     Container,
@@ -32,14 +32,13 @@ const BoardDetail: React.FC = () => {
     const client_token = localStorage.getItem('token');
     const client_id = localStorage.getItem('client_id');
 
-
     // Получение задач доски
-    const fetchTasks = async () => {
+    const fetchTasks = useCallback(async () => {
         try {
             setIsLoading(true);
             const boardResponse = await api.get(`/boards/${boardId}`);
             setBoardName(boardResponse.data.board_name);
-            
+
             const tasksResponse = await api.get('/tasks', {
                 params: { board_id: boardId }
             });
@@ -51,19 +50,19 @@ const BoardDetail: React.FC = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [boardId]);
 
     useEffect(() => {
         if (boardId) {
             fetchTasks();
         }
-    }, [boardId]);
+    }, [fetchTasks]);
 
     // Создание новой задачи
     const handleCreateTask = async (taskData: Partial<Task>) => {
         try {
             if (!client_token) throw new Error('Необходимо войти в систему');
-        
+
             const newTaskData = {
                 ...taskData,
                 task_performer_id: Number(client_id), //был client_token, с ним не работало создание задачи

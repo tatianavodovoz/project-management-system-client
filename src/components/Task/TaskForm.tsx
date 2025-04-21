@@ -14,7 +14,9 @@ import {
     InputLabel,
     Select,
     MenuItem,
-    SelectChangeEvent
+    SelectChangeEvent,
+    Checkbox,
+    FormControlLabel
 } from '@mui/material';
 import { Task } from '../../types';
 
@@ -38,7 +40,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, onClose, onSubmit, task, boar
         task_description: '',
         task_status: 'TODO',
         task_deadline: new Date().toISOString().split('T')[0],
-        task_board_id: boardId
+        task_board_id: boardId,
+        task_importance: false
     });
 
     /**
@@ -56,7 +59,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, onClose, onSubmit, task, boar
         if (task) {
             setFormData({
                 ...task,
-                task_deadline: formatDateForInput(task.task_deadline)
+                task_deadline: formatDateForInput(task.task_deadline),
+                task_importance: task.task_importance ?? false
             });
         } else {
             // Сброс формы при создании новой задачи
@@ -65,7 +69,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, onClose, onSubmit, task, boar
                 task_description: '',
                 task_status: 'TODO',
                 task_deadline: formatDateForInput(new Date()),
-                task_board_id: boardId
+                task_board_id: boardId,
+                task_importance: false
             });
         }
     }, [task, boardId]);
@@ -130,20 +135,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, onClose, onSubmit, task, boar
                         onChange={handleTextChange}
                         required
                     />
-                    {/* Статус задачи */}
-                    <FormControl fullWidth margin="dense">
-                        <InputLabel>Статус</InputLabel>
-                        <Select
-                            name="task_status"
-                            value={formData.task_status || ''}
-                            onChange={handleSelectChange}
-                            required
-                        >
-                            <MenuItem value="TODO">К выполнению</MenuItem>
-                            <MenuItem value="IN PROGRESS">В работе</MenuItem>
-                            <MenuItem value="DONE">Выполнено</MenuItem>
-                        </Select>
-                    </FormControl>
+                   
                     {/* Дедлайн задачи */}
                     <TextField
                         margin="dense"
@@ -158,6 +150,18 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, onClose, onSubmit, task, boar
                             shrink: true,
                         }}
                     />
+                     {/* Важность задачи */}
+                     <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={Boolean(formData.task_importance)}
+                                onChange={(e) => setFormData(prev => ({ ...prev, task_importance: e.target.checked }))}
+                                name="task_importance"
+                            />
+                        }
+                        label="Важно"
+                    />
+
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={onClose}>Отмена</Button>

@@ -13,6 +13,7 @@ export interface Task {
     task_performer_id: number;
     task_deadline: string;
     task_board_id: number;
+    task_importance?: boolean;
 }
 
 export interface Client {
