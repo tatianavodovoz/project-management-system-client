@@ -180,28 +180,28 @@ const BoardDetail: React.FC = () => {
             {showMatrix ? (
                 <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: 2, mb: 4 }}>
                     {/* Квадрант 1 */}
-                    <Paper sx={{ p: 2, minHeight: 200 }}>
+                    <Paper sx={{ p: 2, minHeight: 200, border: '2px solid #1976d2', borderRadius: 2 }}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Важные и срочные (1)</Typography>
                         {tasks.filter(t => t.task_category_matrix === 1).map(task => (
                             <TaskCard key={task.task_id} task={task} onStatusChange={handleStatusChange} onEdit={t => { setEditingTask(t); setIsTaskFormOpen(true); }} onDelete={handleDeleteTask} />
                         ))}
                     </Paper>
                     {/* Квадрант 2 */}
-                    <Paper sx={{ p: 2, minHeight: 200 }}>
+                    <Paper sx={{ p: 2, minHeight: 200, border: '2px solid #1976d2', borderRadius: 2 }}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Важные, не срочные (2)</Typography>
                         {tasks.filter(t => t.task_category_matrix === 2).map(task => (
                             <TaskCard key={task.task_id} task={task} onStatusChange={handleStatusChange} onEdit={t => { setEditingTask(t); setIsTaskFormOpen(true); }} onDelete={handleDeleteTask} />
                         ))}
                     </Paper>
                     {/* Квадрант 3 */}
-                    <Paper sx={{ p: 2, minHeight: 200 }}>
+                    <Paper sx={{ p: 2, minHeight: 200, border: '2px solid #1976d2', borderRadius: 2 }}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Неважные, срочные (3)</Typography>
                         {tasks.filter(t => t.task_category_matrix === 3).map(task => (
                             <TaskCard key={task.task_id} task={task} onStatusChange={handleStatusChange} onEdit={t => { setEditingTask(t); setIsTaskFormOpen(true); }} onDelete={handleDeleteTask} />
                         ))}
                     </Paper>
                     {/* Квадрант 4 */}
-                    <Paper sx={{ p: 2, minHeight: 200 }}>
+                    <Paper sx={{ p: 2, minHeight: 200, border: '2px solid #1976d2', borderRadius: 2 }}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Неважные, не срочные (4)</Typography>
                         {tasks.filter(t => t.task_category_matrix === 4).map(task => (
                             <TaskCard key={task.task_id} task={task} onStatusChange={handleStatusChange} onEdit={t => { setEditingTask(t); setIsTaskFormOpen(true); }} onDelete={handleDeleteTask} />
