@@ -14,6 +14,8 @@ export interface Task {
     task_deadline: string;
     task_board_id: number;
     task_importance?: boolean;
+    task_time_warning: number;
+    task_category_matrix: number;
 }
 
 export interface Client {

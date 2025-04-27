@@ -20,6 +20,26 @@ import { api } from '../services/api';
 import TaskForm from '../components/Task/TaskForm';
 import TaskCard from '../components/Task/TaskCard';
 
+const sortTask = (data: Task[]) => {
+    for (const obj of data) {
+        const todayDate = new Date();
+        const deadlineDate = new Date(obj.task_deadline);
+        const timeLeft = (deadlineDate.getTime() - todayDate.getTime()) / (1000 * 3600 * 24);
+        if (obj.task_importance == true && timeLeft <= obj.task_time_warning) {
+            obj.task_category_matrix = 1
+        }
+        if (obj.task_importance == true && timeLeft > obj.task_time_warning) {
+            obj.task_category_matrix = 2
+        }
+        if (obj.task_importance == false && timeLeft <= obj.task_time_warning) {
+            obj.task_category_matrix = 3
+        }
+        if (obj.task_importance == false && timeLeft > obj.task_time_warning) {
+            obj.task_category_matrix = 4
+        }
+    }
+    return data;
+}
 
 const BoardDetail: React.FC = () => {
     const { boardId } = useParams<{ boardId: string }>();
@@ -29,6 +49,7 @@ const BoardDetail: React.FC = () => {
     const [error, setError] = useState<string>('');
     const [isTaskFormOpen, setIsTaskFormOpen] = useState(false);
     const [editingTask, setEditingTask] = useState<Task | undefined>(undefined);
+    const [showMatrix, setShowMatrix] = useState(false);
     const client_token = localStorage.getItem('token');
     const client_id = localStorage.getItem('client_id');
 
@@ -42,7 +63,9 @@ const BoardDetail: React.FC = () => {
             const tasksResponse = await api.get('/tasks', {
                 params: { board_id: boardId }
             });
-            setTasks(tasksResponse.data);
+            const sortedTask = sortTask(tasksResponse.data)
+            setTasks(sortedTask);
+            console.log('Результат сортировки (матрица):', sortedTask);
             setError('');
         } catch (error: any) {
             console.error('Error fetching tasks:', error);
@@ -139,6 +162,12 @@ const BoardDetail: React.FC = () => {
                 >
                     Добавить задачу
                 </Button>
+                <Button
+                    variant={showMatrix ? "outlined" : "contained"}
+                    onClick={() => setShowMatrix((prev) => !prev)}
+                >
+                    {showMatrix ? "Скрыть матрицу Эйзенхауэра" : "Показать матрицу Эйзенхауэра"}
+                </Button>
             </Box>
 
             {error && (
@@ -147,70 +176,103 @@ const BoardDetail: React.FC = () => {
                 </Typography>
             )}
 
-            <Grid container spacing={3}>
-                {/* Колонка TODO */}
-                <Grid item xs={12} md={4}>
-                    <Paper sx={{ p: 2, bgcolor: '#f5f5f5' }}>
-                        <Typography variant="h6" sx={{ mb: 2 }}>
-                            К выполнению
-                        </Typography>
-                        {filterTasksByStatus('TODO').map(task => (
-                            <TaskCard
-                                key={task.task_id}
-                                task={task}
-                                onStatusChange={handleStatusChange}
-                                onEdit={(task) => {
-                                    setEditingTask(task);
-                                    setIsTaskFormOpen(true);
-                                }}
-                                onDelete={handleDeleteTask}
-                            />
+            {showMatrix ? (
+                <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gridTemplateRows: '1fr 1fr', gap: 2, mb: 4 }}>
+                    {/* Квадрант 1 */}
+                    <Paper sx={{ p: 2, minHeight: 200 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Важные и срочные (1)</Typography>
+                        {tasks.filter(t => t.task_category_matrix === 1).map(task => (
+                            <TaskCard key={task.task_id} task={task} onStatusChange={handleStatusChange} onEdit={t => { setEditingTask(t); setIsTaskFormOpen(true); }} onDelete={handleDeleteTask} />
                         ))}
                     </Paper>
-                </Grid>
+                    {/* Квадрант 2 */}
+                    <Paper sx={{ p: 2, minHeight: 200 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Важные, не срочные (2)</Typography>
+                        {tasks.filter(t => t.task_category_matrix === 2).map(task => (
+                            <TaskCard key={task.task_id} task={task} onStatusChange={handleStatusChange} onEdit={t => { setEditingTask(t); setIsTaskFormOpen(true); }} onDelete={handleDeleteTask} />
+                        ))}
+                    </Paper>
+                    {/* Квадрант 3 */}
+                    <Paper sx={{ p: 2, minHeight: 200 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Неважные, срочные (3)</Typography>
+                        {tasks.filter(t => t.task_category_matrix === 3).map(task => (
+                            <TaskCard key={task.task_id} task={task} onStatusChange={handleStatusChange} onEdit={t => { setEditingTask(t); setIsTaskFormOpen(true); }} onDelete={handleDeleteTask} />
+                        ))}
+                    </Paper>
+                    {/* Квадрант 4 */}
+                    <Paper sx={{ p: 2, minHeight: 200 }}>
+                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Неважные, не срочные (4)</Typography>
+                        {tasks.filter(t => t.task_category_matrix === 4).map(task => (
+                            <TaskCard key={task.task_id} task={task} onStatusChange={handleStatusChange} onEdit={t => { setEditingTask(t); setIsTaskFormOpen(true); }} onDelete={handleDeleteTask} />
+                        ))}
+                    </Paper>
+                </Box>
+            ) : (
+                <Grid container spacing={3}>
+                    {/* Колонка TODO */}
+                    <Grid item xs={12} md={4}>
+                        <Paper sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+                            <Typography variant="h6" sx={{ mb: 2 }}>
+                                К выполнению
+                            </Typography>
+                            {filterTasksByStatus('TODO').map(task => (
+                                <TaskCard
+                                    key={task.task_id}
+                                    task={task}
+                                    onStatusChange={handleStatusChange}
+                                    onEdit={(task) => {
+                                        setEditingTask(task);
+                                        setIsTaskFormOpen(true);
+                                    }}
+                                    onDelete={handleDeleteTask}
+                                />
+                            ))}
+                        </Paper>
+                    </Grid>
 
-                {/* Колонка IN PROGRESS */}
-                <Grid item xs={12} md={4}>
-                    <Paper sx={{ p: 2, bgcolor: '#f5f5f5' }}>
-                        <Typography variant="h6" sx={{ mb: 2 }}>
-                            В работе
-                        </Typography>
-                        {filterTasksByStatus('IN PROGRESS').map(task => (
-                            <TaskCard
-                                key={task.task_id}
-                                task={task}
-                                onStatusChange={handleStatusChange}
-                                onEdit={(task) => {
-                                    setEditingTask(task);
-                                    setIsTaskFormOpen(true);
-                                }}
-                                onDelete={handleDeleteTask}
-                            />
-                        ))}
-                    </Paper>
-                </Grid>
+                    {/* Колонка IN PROGRESS */}
+                    <Grid item xs={12} md={4}>
+                        <Paper sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+                            <Typography variant="h6" sx={{ mb: 2 }}>
+                                В работе
+                            </Typography>
+                            {filterTasksByStatus('IN PROGRESS').map(task => (
+                                <TaskCard
+                                    key={task.task_id}
+                                    task={task}
+                                    onStatusChange={handleStatusChange}
+                                    onEdit={(task) => {
+                                        setEditingTask(task);
+                                        setIsTaskFormOpen(true);
+                                    }}
+                                    onDelete={handleDeleteTask}
+                                />
+                            ))}
+                        </Paper>
+                    </Grid>
 
-                {/* Колонка DONE */}
-                <Grid item xs={12} md={4}>
-                    <Paper sx={{ p: 2, bgcolor: '#f5f5f5' }}>
-                        <Typography variant="h6" sx={{ mb: 2 }}>
-                            Выполнено
-                        </Typography>
-                        {filterTasksByStatus('DONE').map(task => (
-                            <TaskCard
-                                key={task.task_id}
-                                task={task}
-                                onStatusChange={handleStatusChange}
-                                onEdit={(task) => {
-                                    setEditingTask(task);
-                                    setIsTaskFormOpen(true);
-                                }}
-                                onDelete={handleDeleteTask}
-                            />
-                        ))}
-                    </Paper>
+                    {/* Колонка DONE */}
+                    <Grid item xs={12} md={4}>
+                        <Paper sx={{ p: 2, bgcolor: '#f5f5f5' }}>
+                            <Typography variant="h6" sx={{ mb: 2 }}>
+                                Выполнено
+                            </Typography>
+                            {filterTasksByStatus('DONE').map(task => (
+                                <TaskCard
+                                    key={task.task_id}
+                                    task={task}
+                                    onStatusChange={handleStatusChange}
+                                    onEdit={(task) => {
+                                        setEditingTask(task);
+                                        setIsTaskFormOpen(true);
+                                    }}
+                                    onDelete={handleDeleteTask}
+                                />
+                            ))}
+                        </Paper>
+                    </Grid>
                 </Grid>
-            </Grid>
+            )}
 
             <TaskForm
                 open={isTaskFormOpen}

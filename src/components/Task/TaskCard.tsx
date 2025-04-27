@@ -89,6 +89,9 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onStatusChange, onEdit, onDel
                         size="small"
                     />
                     <Typography variant="caption">
+                        Категория матрицы: {task.task_category_matrix}
+                    </Typography>
+                    <Typography variant="caption">
                         Дедлайн: {new Date(task.task_deadline).toLocaleDateString()}
                     </Typography>
                 </div>
