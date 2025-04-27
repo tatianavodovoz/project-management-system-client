@@ -25,6 +25,7 @@ const sortTask = (data: Task[]) => {
         const todayDate = new Date();
         const deadlineDate = new Date(obj.task_deadline);
         const timeLeft = (deadlineDate.getTime() - todayDate.getTime()) / (1000 * 3600 * 24);
+
         if (obj.task_importance == true && timeLeft <= obj.task_time_warning) {
             obj.task_category_matrix = 1
         }

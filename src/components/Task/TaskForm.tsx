@@ -161,7 +161,18 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, onClose, onSubmit, task, boar
                         }
                         label="Важно"
                     />
-
+                    {/* Через сколько дней задача станет срочной */}
+                    <TextField
+                        margin="dense"
+                        name="task_time_warning"
+                        label="За сколько дней до дедлайна задача считается срочной?"
+                        type="number"
+                        fullWidth
+                        value={formData.task_time_warning || ''}
+                        onChange={handleTextChange}
+                        required
+                        inputProps={{ min: 1 }}
+                    />
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={onClose}>Отмена</Button>
