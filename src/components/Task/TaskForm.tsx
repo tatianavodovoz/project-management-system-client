@@ -168,7 +168,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, onClose, onSubmit, task, boar
                         label="За сколько дней до дедлайна задача считается срочной?"
                         type="number"
                         fullWidth
-                        value={formData.task_time_warning || ''}
+                        value={formData.task_time_warning || '1'}
                         onChange={handleTextChange}
                         required
                         inputProps={{ min: 1 }}
