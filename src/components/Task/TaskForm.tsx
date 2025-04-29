@@ -41,7 +41,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, onClose, onSubmit, task, boar
         task_status: 'TODO',
         task_deadline: new Date().toISOString().split('T')[0],
         task_board_id: boardId,
-        task_importance: false
+        task_importance: false,
+        task_reach: undefined,
+        task_impact: undefined,
+        task_confidence: undefined,
+        task_effort: undefined,
     });
 
     /**
@@ -70,7 +74,11 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, onClose, onSubmit, task, boar
                 task_status: 'TODO',
                 task_deadline: formatDateForInput(new Date()),
                 task_board_id: boardId,
-                task_importance: false
+                task_importance: false,
+                task_reach: undefined,
+                task_impact: undefined,
+                task_confidence: undefined,
+                task_effort: undefined,
             });
         }
     }, [task, boardId]);
@@ -81,7 +89,13 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, onClose, onSubmit, task, boar
      */
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit(formData);
+    
+
+        const taskData = {
+            ...formData,
+        };
+
+        onSubmit(taskData);
         onClose();
     };
 
@@ -165,13 +179,54 @@ const TaskForm: React.FC<TaskFormProps> = ({ open, onClose, onSubmit, task, boar
                     <TextField
                         margin="dense"
                         name="task_time_warning"
-                        label="За сколько дней до дедлайна задача считается срочной?"
+                        label="За сколько дней до дедлайна задача становится срочной?"
                         type="number"
                         fullWidth
-                        value={formData.task_time_warning || '1'}
+                        value={formData.task_time_warning || ''}
                         onChange={handleTextChange}
                         required
                         inputProps={{ min: 1 }}
+                    />
+                    {/* RICE метрики */}
+                    <TextField
+                        margin="dense"
+                        name="task_reach"
+                        label="Охват (количество пользователей)"
+                        type="number"
+                        fullWidth
+                        value={formData.task_reach || ''}
+                        onChange={handleTextChange}
+                        inputProps={{ min: 0 }}
+                    />
+                    <TextField
+                        margin="dense"
+                        name="task_impact"
+                        label="Влияние (1-3)"
+                        type="number"
+                        fullWidth
+                        value={formData.task_impact || ''}
+                        onChange={handleTextChange}
+                        inputProps={{ min: 1, max: 3 }}
+                    />
+                    <TextField
+                        margin="dense"
+                        name="task_confidence"
+                        label="Уверенность (0-100%)"
+                        type="number"
+                        fullWidth
+                        value={formData.task_confidence || ''}
+                        onChange={handleTextChange}
+                        inputProps={{ min: 0, max: 100 }}
+                    />
+                    <TextField
+                        margin="dense"
+                        name="task_effort"
+                        label="Усилия (человеко-недели)"
+                        type="number"
+                        fullWidth
+                        value={formData.task_effort || ''}
+                        onChange={handleTextChange}
+                        inputProps={{ min: 0, step: 0.5 }}
                     />
                 </DialogContent>
                 <DialogActions>

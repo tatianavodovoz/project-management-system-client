@@ -3,7 +3,7 @@
  * Предоставляет возможности управления задачей: изменение статуса, редактирование и удаление.
  */
 import React from 'react';
-import { Card, CardContent, Typography, Chip, IconButton, Menu, MenuItem } from '@mui/material';
+import { Card, CardContent, Typography, Chip, IconButton, Menu, MenuItem, Box } from '@mui/material';
 import { MoreVert as MoreVertIcon } from '@mui/icons-material';
 import { Task } from '../../types';
 
@@ -95,6 +95,28 @@ const TaskCard: React.FC<TaskCardProps> = ({ task, onStatusChange, onEdit, onDel
                         Дедлайн: {new Date(task.task_deadline).toLocaleDateString()}
                     </Typography>
                 </div>
+                <Box sx={{ mt: 2 }}>
+                    <Typography variant="body2">
+                        Срок: {new Date(task.task_deadline).toLocaleDateString()}
+                    </Typography>
+                    {task.task_importance && (
+                        <Chip 
+                            label="Важно" 
+                            color="error" 
+                            size="small" 
+                            sx={{ mt: 1 }}
+                        />
+                    )}
+                    <Box sx={{ mt: 1 }}>
+                        <Typography variant="body2" color="primary">
+                            RICE оценка: {task.task_rice_score?.toFixed(2) || 'N/A'}
+                        </Typography>
+                        <Typography variant="caption" color="text.secondary">
+                            (Охват: {task.task_reach}, Влияние: {task.task_impact}, 
+                            Уверенность: {task.task_confidence}%, Усилия: {task.task_effort})
+                        </Typography>
+                    </Box>
+                </Box>
                 {/* Меню действий */}
                 <Menu
                     anchorEl={anchorEl}

@@ -20,6 +20,11 @@ import { api } from '../services/api';
 import TaskForm from '../components/Task/TaskForm';
 import TaskCard from '../components/Task/TaskCard';
 
+const calculateRiceScore = (reach: number, impact: number, confidence: number, effort: number): number => {
+    // RICE = Reach * Impact * Confidence / Effort
+    return (reach * impact * (confidence / 100)) / effort;
+};
+
 const sortTask = (data: Task[]) => {
     for (const obj of data) {
         const todayDate = new Date();
@@ -37,6 +42,21 @@ const sortTask = (data: Task[]) => {
         }
         if (obj.task_importance == false && timeLeft > obj.task_time_warning) {
             obj.task_category_matrix = 4
+        }
+        if (obj.task_effort == 0) {
+            continue
+        }
+        else {
+            // Рассчитываем RICE score
+            const riceScore = calculateRiceScore(
+                obj.task_reach,
+                obj.task_impact,
+                obj.task_confidence,
+                obj.task_effort
+            );
+
+            obj.task_rice_score = riceScore;
+
         }
     }
     return data;
@@ -182,28 +202,28 @@ const BoardDetail: React.FC = () => {
                     {/* Квадрант 1 */}
                     <Paper sx={{ p: 2, minHeight: 200, border: '2px solid #1976d2', borderRadius: 2 }}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Важные и срочные (1)</Typography>
-                        {tasks.filter(t => t.task_category_matrix === 1).map(task => (
+                        {tasks.filter(t => t.task_category_matrix === 1).sort((a,b) => (b.task_rice_score - a.task_rice_score)).map(task => (
                             <TaskCard key={task.task_id} task={task} onStatusChange={handleStatusChange} onEdit={t => { setEditingTask(t); setIsTaskFormOpen(true); }} onDelete={handleDeleteTask} />
                         ))}
                     </Paper>
                     {/* Квадрант 2 */}
                     <Paper sx={{ p: 2, minHeight: 200, border: '2px solid #1976d2', borderRadius: 2 }}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Важные, не срочные (2)</Typography>
-                        {tasks.filter(t => t.task_category_matrix === 2).map(task => (
+                        {tasks.filter(t => t.task_category_matrix === 2).sort((a,b) => (b.task_rice_score - a.task_rice_score)).map(task => (
                             <TaskCard key={task.task_id} task={task} onStatusChange={handleStatusChange} onEdit={t => { setEditingTask(t); setIsTaskFormOpen(true); }} onDelete={handleDeleteTask} />
                         ))}
                     </Paper>
                     {/* Квадрант 3 */}
                     <Paper sx={{ p: 2, minHeight: 200, border: '2px solid #1976d2', borderRadius: 2 }}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Неважные, срочные (3)</Typography>
-                        {tasks.filter(t => t.task_category_matrix === 3).map(task => (
+                        {tasks.filter(t => t.task_category_matrix === 3).sort((a,b) => (b.task_rice_score - a.task_rice_score)).map(task => (
                             <TaskCard key={task.task_id} task={task} onStatusChange={handleStatusChange} onEdit={t => { setEditingTask(t); setIsTaskFormOpen(true); }} onDelete={handleDeleteTask} />
                         ))}
                     </Paper>
                     {/* Квадрант 4 */}
                     <Paper sx={{ p: 2, minHeight: 200, border: '2px solid #1976d2', borderRadius: 2 }}>
                         <Typography variant="subtitle1" sx={{ fontWeight: 'bold', mb: 1 }}>Неважные, не срочные (4)</Typography>
-                        {tasks.filter(t => t.task_category_matrix === 4).map(task => (
+                        {tasks.filter(t => t.task_category_matrix === 4).sort((a,b) => (b.task_rice_score - a.task_rice_score)).map(task => (
                             <TaskCard key={task.task_id} task={task} onStatusChange={handleStatusChange} onEdit={t => { setEditingTask(t); setIsTaskFormOpen(true); }} onDelete={handleDeleteTask} />
                         ))}
                     </Paper>
